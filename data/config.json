@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "titolo": "Il Gazette",
+    "sottotitolo": "Il giornalino della nostra scuola",
+    "scuola": ""
+  },
+  "sezioni": [
+    {"id": "attualita", "nome": "Attualità", "rubrica": false},
+    {"id": "scuola", "nome": "Scuola", "rubrica": false},
+    {"id": "sport", "nome": "Sport", "rubrica": false},
+    {"id": "interviste", "nome": "Interviste", "rubrica": false},
+    {"id": "meteo", "nome": "Il meteo di classe", "rubrica": true}
+  ]
+}
