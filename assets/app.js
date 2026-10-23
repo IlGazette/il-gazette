@@ -408,6 +408,7 @@ function articleEditor(meta, ed, a){
     el("hr", {class:"hair"}),
     el("div", {class:"row"}, publish, save,
       el("a", {class:"btn sec", href:"#/redazione/anteprima/" + meta.id + "/a/" + a.id}, "Anteprima articolo"),
+      el("button", {class:"btn sec", onclick: () => exportArticolo(meta, a)}, "Esporta articolo"),
       el("span", {style:"flex:1"}), del)];
 }
 
@@ -449,13 +450,30 @@ function exportSezioni(){
   download("config.json", JSON.stringify(S.cfg, null, 2));
   toast("Scaricato config.json: caricalo su GitHub in data/");
 }
+function exportArticolo(meta, a){
+  download("articolo-" + a.id + ".json", JSON.stringify({edizione: meta.id, numero: meta.numero, articolo: a}, null, 2));
+  toast("Scaricato l'articolo: mandalo alla redazione.");
+}
+async function mergeArticolo(d){
+  // il numero si riconosce dal suo numero, così chi scrive non deve conoscere gli id
+  let meta = S.indice.find(e => e.numero === d.numero) || metaOf(d.edizione);
+  if(!meta){
+    meta = {id: d.edizione, numero: d.numero || 1, titolo: "", data: new Date().toISOString().slice(0,10), stato: "bozza"};
+    S.indice.push(meta); S.ed[meta.id] = {articoli: []};
+  }
+  const ed = await edition(meta.id);
+  const i = ed.articoli.findIndex(x => x.id === d.articolo.id);
+  if(i >= 0) ed.articoli[i] = d.articolo; else ed.articoli.push(d.articolo);
+  return meta;
+}
 async function importFiles(ev){
   const files = Array.from(ev.target.files || []);
   let ok = 0;
   for(const f of files){
     try{
       const d = JSON.parse(await f.text());
-      if(f.name === "indice.json" && Array.isArray(d.edizioni)){ S.indice = d.edizioni; ok++; }
+      if(d.articolo && d.articolo.id){ const m = await mergeArticolo(d); toast("Articolo aggiunto al numero " + m.numero); ok++; }
+      else if(f.name === "indice.json" && Array.isArray(d.edizioni)){ S.indice = d.edizioni; ok++; }
       else if(f.name === "config.json" && d.sezioni){ S.cfg = d; ok++; }
       else if(Array.isArray(d.articoli)){ S.ed[f.name.replace(/\.json$/, "")] = {articoli: d.articoli}; ok++; }
     }catch(e){ toast("File non valido: " + f.name, true); }
