@@ -1,3 +1,11 @@
 {
-  "edizioni": []
+  "edizioni": [
+    {
+      "id": "ed-ydj7ofm94c",
+      "numero": 1,
+      "titolo": "",
+      "data": "2026-10-23",
+      "stato": "bozza"
+    }
+  ]
 }
